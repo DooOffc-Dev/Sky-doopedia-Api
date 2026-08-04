@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "regions": ["dev1", "id"], 
   "builds": [
     {
       "src": "index.js",
