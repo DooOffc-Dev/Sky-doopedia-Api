@@ -41,11 +41,11 @@ const settings = {
   apiSettings: { creator: "Xsky_doopedia" },
   linkWhatsapp: "https://t.me/Xsky_doopedia",
   linkChannel: "https://whatsapp.com/channel/0029VbDThaa7tkj1ZTGzfw3X", 
-  linkGithub: "https://github.com/Xsky_DooOffc-Dev", 
+  linkGithub: "https://github.com/DooOffc-Dev", 
   linkyoutube: "https://www.youtube.com/@sky_doo"
 };
 
-global.apikey = ["123", "1"]
+global.apikey = ["DC-DooCode", "Xskydoo", "DC"]
 
 app.use((req, res, next) => {
   const originalJson = res.json;
