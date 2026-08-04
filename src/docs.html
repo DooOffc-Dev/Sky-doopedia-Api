@@ -1,0 +1,1747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ffff" />
+    <title>Skydoopedia - Api's Documentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = { theme: { extend: { fontFamily: { 'sans': ['Poppins', 'system-ui', 'sans-serif'] } } } }
+    </script>
+    <style>
+        ::-webkit-scrollbar { display: none !important; }
+        
+        /* Light Mode Only */
+        body { 
+            position: relative; 
+            background: #ffffff;
+            color: #4B4B4B;
+            letter-spacing: -0.2px; 
+            min-height: 100vh;
+            font-weight: 400;
+            font-family: 'Poppins', sans-serif;
+            padding-top: 80px;
+            padding-bottom: 50px;
+        }
+        
+        
+        .category-scroll-container { display: flex; overflow-x: auto; gap: 10px; padding: 10px 0; }
+        .status-badge { font-size: 0.7rem; padding: 3px 10px; font-weight: 500; border-radius: 6px; }
+        .status-ready { background: rgba(16,185,129,0.15); color: #047857; border: 1px solid rgba(16,185,129,0.3); }
+        .status-update { background: rgba(245,158,11,0.15); color: #b45309; border: 1px solid rgba(245,158,11,0.3); }
+        .status-error { background: rgba(239,68,68,0.15); color: #dc2626; border: 1px solid rgba(239,68,68,0.3); }
+        .content-type-badge { font-size: 0.80rem; padding: 3px 8px; background: rgba(51,51,51,0.05); color: #333; font-weight: 500; border-radius: 6px; }
+        .response-media-container { min-height: 200px; display: flex; align-items: center; justify-content: center; width: 100%; overflow: hidden; }
+        .response-media-container img, .response-media-container video { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; }
+        .response-media-container audio { width: 100%; max-width: 400px; }
+        .code-block { font-family: 'Poppins', sans-serif; font-weight: 500; background: #f8f9fa; border: 1px solid #e5e7eb; overflow-x: auto; border-radius: 8px; }
+        .slide-up { animation: slideUp 0.5s ease-out; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .slide-down { animation: slideDown 0.3s ease-out; }
+        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .toast {
+            position: fixed; bottom: 30px; right: 30px; background: #ffffff;
+            padding: 14px 20px; font-size: 0.85rem;
+            display: flex; align-items: center; gap: 10px; z-index: 1000;
+            max-width: 350px; transform: translateY(100px); opacity: 0; transition: all 0.5s cubic-bezier(0.68,-0.55,0.27,1.55);
+            border-radius: 10px;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .loader {
+            width: 42px;
+            height: 42px;
+            border: 3px solid #e5e7eb;
+            border-top-color: #333;
+            animation: spin 1s linear infinite;
+            border-radius: 50%;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes rotate { 100% { transform: rotate(360deg); } }
+        @keyframes prixClipFix {
+            0% { clip-path: polygon(50% 50%,0 0,0 0,0 0,0 0,0 0); }
+            25% { clip-path: polygon(50% 50%,0 0,100% 0,100% 0,100% 0,100% 0); }
+            50% { clip-path: polygon(50% 50%,0 0,100% 0,100% 100%,100% 100%,100% 100%); }
+            75% { clip-path: polygon(50% 50%,0 0,100% 0,100% 100%,0 100%,0 100%); }
+            100% { clip-path: polygon(50% 50%,0 0,100% 0,100% 100%,0 100%,0 0); }
+        }
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+        .stat-card { min-width: 160px; }
+        @media (max-width: 768px) { .stat-card { min-width: 140px; } }
+        
+        input[type="file"] {
+            padding-top: 10px !important;
+            padding-bottom: 10px !important;
+            line-height: 1.25 !important;
+        }
+
+        input[type="file"]::file-selector-button {
+            margin-right: 8px;
+            padding: 6px 16px;
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            background: #e5e7eb;
+        }
+        
+        /* Custom Select Arrow Only */
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E") no-repeat right 0.75rem center/10px;
+            padding-right: 2.5rem !important;
+            border-radius: 8px !important;
+        }
+
+        .tab-container { display: flex; border-bottom: 1px solid #d1d5db; margin-bottom: 16px; }
+        .tab { padding: 8px 12px; background: transparent; border: none; color: #6b7280; font-size: 0.9rem; font-weight: 500; cursor: pointer; position: relative; transition: all 0.2s; border-radius: 6px 6px 0 0; }
+        .tab:hover { color: #111827; background: #f3f4f6; }
+        .tab.active { color: #111827; background: #f8f9fa; }
+        .tab.active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: #111827; border-radius: 1px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease-out; }
+        
+        .code-container { position: relative; margin-top: 12px; }
+        .code-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #f8f9fa; border: 1px solid #e5e7eb; border-bottom: none; border-radius: 8px 8px 0 0; }
+        .code-header span { font-size: 0.85rem; color: #4b5563; font-family: monospace; font-weight: 500; }
+        .code-header button { padding: 5px 12px; background: rgba(51,51,51,0.1); color: #333; border: 1px solid rgba(51,51,51,0.3); font-size: 0.8rem; cursor: pointer; transition: all 0.2s; font-weight: 500; border-radius: 6px; }
+        .code-header button:hover { background: rgba(51,51,51,0.2); }
+        .code-content { background: #f8f9fa; border: 1px solid #e5e7eb; border-top: none; padding: 16px; overflow-x: auto; border-radius: 0 0 8px 8px; }
+        .code-content pre { margin: 0; font-family: 'Poppins', sans-serif; font-size: 0.875rem; line-height: 1.5; color: #374151; }
+        .code-content code { font-family: monospace; }
+
+        .fixed-navbar {
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 30;
+            padding: 15px 0;
+            height: 60px;
+            background-color: white;
+            position: fixed;
+            box-shadow: 0 1px 0 rgba(0,0,0,0.05);
+        }
+
+        .navbar-container {
+            max-width: 6xl;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 1.5rem;
+            height: 100%;
+        }
+
+        .hamburger-menu-wrapper {
+            position: relative;
+        }
+
+        .hamburger-checkbox {
+            display: none;
+        }
+
+        .hamburger-button {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 40px;
+            height: 24px;
+            gap: 4px;
+            cursor: pointer;
+            padding: 8px;
+            z-index: 33;
+            position: relative;
+        }
+
+        .hamburger-button span {
+            display: block;
+            padding: 1px;
+            background: #333;
+            transition: all 0.3s ease-in-out;
+            border-radius: 1px;
+        }
+
+        .hamburger-button span:nth-child(2) {
+            width: 20px;
+            text-align: right;
+        }
+
+        .hamburger-checkbox:checked ~ .hamburger-button span:nth-child(1) {
+            transform: translateY(6.4px) rotate(45deg);
+        }
+
+        .hamburger-checkbox:checked ~ .hamburger-button span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger-checkbox:checked ~ .hamburger-button span:nth-child(3) {
+            transform: translateY(-6.4px) rotate(-45deg);
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 220px;
+            height: 100vh;
+            background: #ffffff;
+            transition: right 0.3s ease-in-out;
+            z-index: 32;
+            overflow-y: auto;
+            padding-top: 80px;
+            border-left: 1px solid #e5e7eb;
+            box-shadow: -4px 0 12px rgba(0,0,0,0.05);
+        }
+
+        .hamburger-checkbox:checked ~ .mobile-menu {
+            right: 0;
+        }
+
+        .mobile-menu-items {
+            padding: 2rem 1rem;
+        }
+
+        .mobile-nav-link {
+            display: flex;
+            align-items: center;
+            color: #374151;
+            padding: 0.875rem 1rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+            text-decoration: none;
+            font-weight: 500;
+            border-radius: 8px;
+        }
+
+        .mobile-nav-link:hover {
+            color: #111827;
+            background: #f3f4f6;
+        }
+
+        .mobile-menu-divider {
+            height: 1px;
+            background: #e5e7eb;
+            margin: 1rem 0;
+        }
+
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(0.5px);
+            z-index: 31;
+            display: none;
+            cursor: pointer;
+        }
+
+        .hamburger-checkbox:checked ~ .mobile-menu-overlay {
+            display: block;
+        }
+
+        .desktop-menu {
+            display: none;
+        }
+
+        /* Animasi tambahan */
+        .endpoint-expand {
+            transition: all 0.3s ease-in-out;
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .endpoint-expand.open {
+            max-height: 2000px;
+            opacity: 1;
+            margin-top: 20px;
+        }
+        
+        .category-transition {
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .tab-switch {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .api-item {
+            transition: all 0.2s ease-in-out;
+            border-radius: 12px;
+        }
+        
+        .api-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+        }
+        
+        .api-item-appear {
+            animation: apiAppear 0.4s ease-out forwards;
+        }
+        
+        @keyframes apiAppear {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .category-active {
+            animation: categoryActive 0.3s ease-out;
+        }
+        
+        @keyframes categoryActive {
+            from {
+                transform: scale(0.98);
+                opacity: 0.8;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        /* Custom Styles based on the reference UI */
+        .hero-section {
+            padding: 20px 25px;
+            background-color: #F8F9FA;
+            color: #333;
+            border-radius: 10px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .btn-dark-custom {
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-dark-custom:hover {
+            background-color: #222;
+            transform: translateY(-1px);
+        }
+        
+        .form-control-custom {
+            border-radius: 8px;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+        
+        .form-control-custom:focus {
+            outline: 3px solid #333 !important;
+            border-color: #333 !important;
+            box-shadow: none !important;
+        }
+        
+        .badge-dark-custom {
+            background-color: #333;
+            color: white;
+            padding: 4px 12px;
+            font-size: 11px;
+            border-radius: 100px;
+            font-weight: 500;
+        }
+        
+        .modal-content-custom {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .param-container .form-control-custom:focus {
+            border-color: #333;
+            box-shadow: 0 0 0 0.25rem rgba(51, 51, 51, 0.25);
+        }
+        
+        .category-header {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #f3f4f6;
+        }
+        
+        .api-item-content {
+            padding: 20px 25px;
+            background-color: #F8F9FA;
+            color: #333;
+            border-radius: 10px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .api-item-content > div {
+            width: 70%;
+        }
+        
+        .api-item-content .text-muted {
+            font-size: 0.85rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            line-height: 1.2;
+        }
+        
+        .lead-custom {
+            font-size: 1rem;
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        /* Loading screen */
+        #loadingScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .spinner-wrapper {
+            text-align: center;
+        }
+        
+        .spinner-wrapper p {
+            margin-top: 1rem;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding-left: 20px;
+                padding-right: 20px;
+                padding-top: 70px;
+            }
+            
+            .api-item-content {
+                padding: 18px 20px;
+                height: 75px;
+            }
+            
+            .category-header {
+                font-size: 1.1rem;
+            }
+            
+            .hero-section {
+                padding: 18px 20px;
+            }
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased font-sans min-h-screen">
+    
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="fixed inset-0 bg-white flex flex-col items-center justify-center z-50 transition-opacity duration-500">
+        <div class="spinner-wrapper">
+            <div class="loader mx-auto mb-4"></div>
+            <p class="text-gray-600 font-medium">Waitt...</p>
+        </div>
+    </div>
+
+    <!-- Fixed Navbar -->
+    <nav class="fixed-navbar">
+        <div class="navbar-container">
+            <div class="flex items-center gap-3">
+                <h1 id="titleApiNav" class="text-lg font-medium text-gray-900">Skydoopedia API</h1> 
+            </div>
+            
+            <!-- Hamburger Menu for Mobile -->
+            <div class="hamburger-menu-wrapper lg:hidden">
+                <input type="checkbox" class="hamburger-checkbox" id="hamburger-toggle">
+                <label for="hamburger-toggle" class="hamburger-button">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </label>
+                
+                <div class="mobile-menu">
+                    <div class="mobile-menu-items">
+                        <a href="#" class="mobile-nav-link">
+                            <i class="fas fa-home mr-3"></i> Home
+                        </a>
+                        <a href="#" class="mobile-nav-link">
+                            <i class="fas fa-book mr-3"></i> Documentation
+                        </a>
+                        <a href="#" class="mobile-nav-link">
+                            <i class="fas fa-code mr-3"></i> API Reference
+                        </a>
+                        
+                        <div class="mobile-menu-divider"></div>
+                        
+                        <a id="Github" href="#" class="mobile-nav-link">
+                            <i class="fab fa-github mr-3"></i> GitHub
+                        </a>
+                        <a id="Youtube" href="#" class="mobile-nav-link">
+                            <i class="fab fa-youtube mr-3"></i> YouTube
+                        </a>
+                        <a id="Whatsapp" href="#" class="mobile-nav-link">
+                            <i class="fab fa-whatsapp mr-3"></i> WhatsApp
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="mobile-menu-overlay"></div>
+            </div>
+            
+            <!-- Desktop Menu -->
+            <div class="desktop-menu hidden lg:flex items-center gap-6">
+                <a href="#" class="text-gray-700 hover:text-gray-900 font-medium text-sm">Home</a>
+                <a href="#" class="text-gray-700 hover:text-gray-900 font-medium text-sm">Documentation</a>
+                <a href="#" class="text-gray-700 hover:text-gray-900 font-medium text-sm">API Reference</a>
+                <a href="#" class="text-gray-700 hover:text-gray-900 font-medium text-sm">Support</a>
+            </div>
+        </div>
+    </nav>
+    
+    <main class="max-w-6xl mx-auto px-2 py-8">
+        <!-- Header -->
+        <header class="mb-4 slide-up">
+            <div class="flex flex-col items-center text-center mb-10">
+                <div class="flex items-center justify-center gap-2 mb-4">
+                    <h1 id="titleApi" class="text-2xl font-medium text-gray-900">Skydoopedia API</h1> 
+                    <span class="badge-dark-custom">v1.0.0-x</span>
+                </div>
+                <p id="descApi" class="text-gray-600 max-w-3xl font-medium text-sm lead-custom">
+                    A comprehensive REST API built with Express.js, providing easy access to various web functionalities including downloaders, AI tools, image creators, and more.
+                </p>
+                
+            </div>
+            
+            <!-- Search Input -->
+            <div class="mb-4">
+                <input type="text" id="searchInput" class="form-control-custom text-sm w-full" placeholder="Search API..." autocomplete="off">
+            </div>
+            
+            <!-- Horizontal Category Filter -->
+            <div>
+                <div class="category-scroll-container" id="categoryScroll">
+                    <!-- Category filters will be dynamically added here -->
+                </div>
+            </div>
+        </header>
+
+        <!-- API Content -->
+        <section class="mb-16">
+            <div id="content">
+                <div id="noResults" class="text-center py-15 hidden">
+                    <div class="max-w-md mx-auto">
+                        <h3 class="text-sm font-medium text-gray-900 mb-3">No results found</h3>
+                        <p class="text-gray-600 font-medium text-sm mb-6">Try different keywords or check the spelling. You can also browse by category using the filters above.</p>
+                        <button id="clearSearchBtn" class="px-5 py-2.5 bg-gray-100 border border-gray-300 text-gray-900 text-sm font-medium hover:bg-gray-200 transition-colors rounded-lg">
+                            Clear search
+                        </button>
+                    </div>
+                </div>
+
+                <div id="apiList" class="space-y-8">
+                    <!-- API list will be loaded here dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="pt-10 border-t border-gray-200">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="text-center md:text-left">
+                    <p id="wm" class="text-gray-600 font-medium text-sm">© 2023 Skydoopedia API. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
+
+<script>
+    let settings = {};
+    let allApiItems = [];
+    let originalCategories = [];
+    let activeCategoryFilter = '';
+    
+    const categoryIcons = {
+        'Downloader': 'fas fa-download', 'Imagecreator': 'fas fa-image', 'Openai': 'fas fa-robot', 'Random': 'fas fa-random',
+        'Search': 'fas fa-search', 'Stalker': 'fas fa-user-secret', 'Tools': 'fas fa-tools', 'Orderkuota': 'fas fa-sim-card',
+        'AI Tools': 'fas fa-brain', 'Entertainment': 'fas fa-gamepad', 'Utilities': 'fas fa-cogs', 'Social Media': 'fas fa-share-alt',
+        'Canvas': 'fas fa-paint-brush'
+    };
+    
+    const categoryColors = {
+        'Downloader': 'bg-blue-100 text-blue-700 border-blue-200', 'Imagecreator': 'bg-purple-100 text-purple-700 border-purple-200',
+        'Openai': 'bg-emerald-100 text-emerald-700 border-emerald-200', 'Random': 'bg-amber-100 text-amber-700 border-amber-200',
+        'Search': 'bg-cyan-100 text-cyan-700 border-cyan-200', 'Stalker': 'bg-red-100 text-red-700 border-red-200',
+        'Tools': 'bg-gray-100 text-gray-700 border-gray-200', 'Orderkuota': 'bg-green-100 text-green-700 border-green-200',
+        'AI Tools': 'bg-indigo-100 text-indigo-700 border-indigo-200', 'Entertainment': 'bg-pink-100 text-pink-700 border-pink-200',
+        'Utilities': 'bg-orange-100 text-orange-700 border-orange-200', 'Social Media': 'bg-teal-100 text-teal-700 border-teal-200',
+        'Canvas': 'bg-blue-100 text-blue-700 border-blue-200'
+    };
+
+    // Inisialisasi aplikasi
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM loaded, initializing app...');
+        initializeApp();
+    });
+
+    async function initializeApp() {
+        console.log('Starting app initialization...');
+        try {
+            settings = await loadSettings();
+            console.log('Settings loaded:', settings);
+            
+            setupUI();
+            console.log('UI setup completed');
+            
+            await loadAPIData();
+            console.log('API data loaded');
+            
+            setupEventListeners();
+            console.log('Event listeners setup completed');
+            
+            // Hide loading screen dengan timeout
+            setTimeout(() => {
+                const loadingScreen = document.getElementById('loadingScreen');
+                if (loadingScreen) {
+                    loadingScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                        console.log('Loading screen hidden');
+                    }, 500);
+                }
+            }, 800);
+            
+        } catch (error) {
+            console.error('Initialization error:', error);
+            
+            // Fallback ke data demo
+            settings = getDefaultSettings();
+            setupUI();
+            let apiData = await loadSettings();
+            originalCategories = apiData.categories || [];
+            renderAPIData(originalCategories);
+            initializeCategoryFilters();
+            updateStats();
+            
+            // Tetap hide loading screen meski error
+            setTimeout(() => {
+                const loadingScreen = document.getElementById('loadingScreen');
+                if (loadingScreen) {
+                    loadingScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                        console.log('Loading screen hidden (fallback mode)');
+                    }, 500);
+                }
+            }, 800);
+        }
+    }
+
+    // Simplified loadSettings
+    async function loadSettings() {
+        console.log('Loading settings...');
+        try {
+            const baseUrl = "/settings";
+            console.log('Fetching settings from:', baseUrl);
+            
+            // Gunakan timeout untuk fetch
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3000);
+            
+            const response = await fetch(baseUrl, { 
+                signal: controller.signal,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+            
+            clearTimeout(timeoutId);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            console.log('Settings loaded successfully');
+            return data;
+        } catch (error) {
+            console.warn('Failed to load settings, using defaults:', error.message);
+            return getDefaultSettings();
+        }
+    }
+
+    async function loadAPIData() {
+        console.log('Loading API data...');
+        try {
+            // Gunakan demo categories langsung tanpa fetch
+            let apiData = await loadSettings();
+            settings.categories = apiData.categories || [];
+            
+            originalCategories = JSON.parse(JSON.stringify(settings.categories || []));
+            
+            allApiItems = [];
+            originalCategories.forEach(category => {
+                if (category && category.items) {
+                    category.items.forEach(item => {
+                        if (item) {
+                            allApiItems.push({ ...item, category: category.name });
+                        }
+                    });
+                }
+            });
+            
+            renderAPIData(originalCategories);
+            initializeCategoryFilters();
+            updateStats();
+            
+            console.log('API data loaded successfully (demo mode)');
+            
+        } catch (error) {
+            console.error('Error loading API data:', error);
+            throw error; // Re-throw untuk ditangani di initializeApp
+        }
+    }
+
+    function getDemoCategories() {
+        console.log('Generating demo categories...');
+        return [
+            {
+                name: "Downloader",
+                items: [
+                    {
+                        name: "Instagram Downloader",
+                        method: "GET",
+                        path: "/download/instagram",
+                        description: "Download videos from Instagram",
+                        parameters: {
+                            apikey: { 
+                                type: "string", 
+                                example: "your_api_key_here", 
+                                value: "",
+                                required: true
+                            },
+                            url: { 
+                                type: "string", 
+                                example: "https://www.instagram.com/p/xxxxx/",
+                                value: "",
+                                required: true
+                            },
+                            format: {
+                                type: "select",
+                                selection: ["mp3", "mp4", "hd", "sd"],
+                                value: "mp4",
+                                required: false
+                            }
+                        }
+                    },
+                    {
+                        name: "YouTube Downloader",
+                        method: "GET",
+                        path: "/api/download/youtube",
+                        description: "Download videos from YouTube in various formats and qualities",
+                        parameters: {
+                            apikey: { 
+                                type: "string", 
+                                example: "your_api_key_here", 
+                                value: "",
+                                required: true
+                            },
+                            url: { 
+                                type: "string", 
+                                example: "https://www.youtube.com/watch?v=xxxxx",
+                                value: "",
+                                required: true
+                            },
+                            quality: {
+                                type: "select",
+                                selection: ["360p", "720p", "1080p", "4k"],
+                                value: "720p",
+                                required: false
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                name: "AI Tools",
+                items: [
+                    {
+                        name: "ChatGPT",
+                        method: "GET",
+                        path: "/api/ai/chatgpt",
+                        description: "AI-powered chatbot using OpenAI's GPT technology",
+                        parameters: {
+                            apikey: { 
+                                type: "string", 
+                                example: "your_api_key_here", 
+                                value: "",
+                                required: true
+                            },
+                            prompt: { 
+                                type: "string", 
+                                example: "What is AI?",
+                                value: "",
+                                required: true
+                            },
+                            model: {
+                                type: "select",
+                                selection: ["gpt-3.5", "gpt-4", "gpt-4-turbo"],
+                                value: "gpt-3.5",
+                                required: false
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                name: "Search",
+                items: [
+                    {
+                        name: "Google Search",
+                        method: "GET",
+                        path: "/api/search/google",
+                        description: "Search the web using Google",
+                        parameters: {
+                            apikey: { 
+                                type: "string", 
+                                example: "your_api_key_here", 
+                                value: "",
+                                required: true
+                            },
+                            query: { 
+                                type: "string", 
+                                example: "JavaScript tutorial",
+                                value: "",
+                                required: true
+                            },
+                            limit: {
+                                type: "select",
+                                selection: ["10", "20", "30", "50"],
+                                value: "10",
+                                required: false
+                            }
+                        }
+                    }
+                ]
+            }
+        ];
+    }
+
+    function getDefaultSettings() {
+        return {
+            name: "Skydoopedia API",
+            creator: "Skydoopedia Team",
+            description: "Interactive API documentation with real-time testing",
+            categories: [],
+            theme: "light",
+            linkWhatsapp: "https://wa.me/1234567890",
+            linkYoutube: "https://youtube.com/c/Skydoopedia",
+            linkGithub: "https://github.com/Skydoopedia"
+        };
+    }
+
+    function setupUI() {
+        console.log('Setting up UI...');
+        
+        const titleApi = document.getElementById('titleApi');
+        const titleApiNav = document.getElementById('titleApiNav');
+        if (titleApi) titleApi.textContent = settings.name || "Skydoopedia API";
+        if (titleApiNav) titleApiNav.textContent = settings.name || "Skydoopedia API";
+        
+        const descApi = document.getElementById('descApi');
+        if (descApi) descApi.textContent = settings.description || "A comprehensive REST API documentation";
+        
+        const wmApi = document.getElementById('wm');
+        if (wmApi) wmApi.textContent = `© 2023 ${settings.creator || "Skydoopedia Team"}. All rights reserved.`;
+        
+    document.getElementById("Github").href = settings.linkGithub;
+    document.getElementById("Youtube").href = settings.linkYoutube;
+    document.getElementById("Whatsapp").href = settings.linkWhatsapp;
+        
+        
+        console.log('UI setup completed');
+    }
+
+    function initializeCategoryFilters() {
+        console.log('Initializing category filters...');
+        const categoryScroll = document.getElementById('categoryScroll');
+        if (!categoryScroll) return;
+        
+        categoryScroll.innerHTML = '';
+        
+        if (!originalCategories || originalCategories.length === 0) {
+            console.log('No categories available');
+            return;
+        }
+        
+        originalCategories.forEach((category, index) => {
+            if (!category || !category.name) return;
+            const colorClass = categoryColors[category.name] || 'bg-gray-100 text-gray-700';
+            const icon = categoryIcons[category.name] || 'fas fa-folder';
+            
+            const activeClass = index === 0 ? 'active bg-gray-200/65 category-active' : 'bg-gray-100';
+            
+            categoryScroll.innerHTML += `
+                <button class="category-filter shrink-0 px-4 py-3 text-gray-900 font-medium transition-all duration-300 flex items-center gap-2 text-sm hover:bg-gray-200/65 ${activeClass} category-transition rounded-xl" data-category="${category.name.toLowerCase()}">
+                    <i class="${icon}"></i>
+                    <span class="font-medium">${category.name}</span>
+                    <span class="text-xs bg-gray-100 py-1 font-medium rounded-full">(${category.items?.length || 0})</span>
+                </button>
+            `;
+        });
+        
+        // Set filter aktif ke kategori pertama
+        if (originalCategories.length > 0) {
+            activeCategoryFilter = originalCategories[0].name.toLowerCase();
+        }
+        
+        // Add event listeners
+        document.querySelectorAll('.category-filter').forEach(filter => {
+            filter.addEventListener('click', function() {
+                const category = this.dataset.category;
+                document.querySelectorAll('.category-filter').forEach(f => {
+                    f.classList.remove('active', 'bg-gray-200/65', 'category-active');
+                    f.classList.add('bg-gray-100');
+                });
+                this.classList.add('active', 'bg-gray-200/65', 'category-active');
+                this.classList.remove('bg-gray-100');
+                activeCategoryFilter = category;
+                applyCategoryFilter(category);
+            });
+        });
+        
+        // Terapkan filter untuk kategori pertama
+        if (originalCategories.length > 0) {
+            applyCategoryFilter(activeCategoryFilter);
+        }
+        
+        console.log('Category filters initialized');
+    }
+
+    function applyCategoryFilter(category) {
+        console.log('Applying filter for category:', category);
+        const filteredCategories = originalCategories.filter(cat => 
+            cat.name.toLowerCase() === category.toLowerCase()
+        );
+        renderAPIData(filteredCategories);
+        updateSearchResultsCount();
+        
+        // Add animation to the active category button
+        const activeButton = document.querySelector(`[data-category="${category}"]`);
+        if (activeButton) {
+            activeButton.classList.add('category-active');
+            setTimeout(() => {
+                activeButton.classList.remove('category-active');
+            }, 300);
+        }
+    }
+
+    function updateStats() {
+        console.log('Updating stats...');
+        const totalEndpoints = document.getElementById('totalEndpoints');
+        const totalCategories = document.getElementById('totalCategories');
+        const statusReady = document.getElementById('statusReady');
+        
+        if (!totalEndpoints || !totalCategories || !statusReady) return;
+        
+        let endpointCount = 0;
+        let categoryCount = originalCategories.length;
+        originalCategories.forEach(category => { 
+            endpointCount += (category.items || []).length; 
+        });
+        
+        if (totalEndpoints) totalEndpoints.textContent = endpointCount;
+        if (totalCategories) totalCategories.textContent = categoryCount;
+        if (statusReady) statusReady.textContent = '100%';
+        
+        console.log(`Stats updated: ${endpointCount} endpoints, ${categoryCount} categories`);
+    }
+
+    function renderAPIData(categories) {
+        console.log('Rendering API data...');
+        const apiList = document.getElementById('apiList');
+        if (!apiList) return;
+        
+        if (!categories || categories.length === 0) {
+            apiList.innerHTML = `
+                <div class="text-center py-12">
+                    <div class="w-20 h-20 bg-gradient-to-r from-gray-800 to-gray-900 flex items-center justify-center mx-auto mb-6 rounded-full">
+                        <i class="fas fa-code text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-medium text-gray-900 mb-3">No API endpoints available</h3>
+                    <p class="text-gray-600 font-medium">Check back later or contact the administrator.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        let html = '';
+        categories.forEach((category, catIndex) => {
+            if (!category || !category.name) return;
+            
+            
+            // Add category items in a grid
+            html += `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">`;
+            
+            if (category.items && category.items.length > 0) {
+                category.items.forEach((item, endpointIndex) => {
+                    if (!item) return;
+                    
+                    const method = item.method || "GET";
+                    const path = item.path || '';
+                    const itemName = item.name || 'Unnamed Endpoint';
+                    const itemDesc = item.description || 'No description available';
+                    
+                    let initialUrl = window.location.origin + (item.path || '');
+                    
+                    const formId = `form-${catIndex}-${endpointIndex}`;
+                    const methodBadgeClass = method === 'POST' ? 'bg-green-500 border border-green-500' : 
+                                             method === 'PUT' ? 'bg-yellow-500 border border-yellow-500' :
+                                             method === 'DELETE' ? 'bg-red-500 border border-red-500' :
+                                             'bg-blue-500 border border-blue-500';
+                    
+                    html += `
+                    <div class="api-item api-item-appear" 
+                         data-method="${method.toLowerCase()}"
+                         data-path="${path}"
+                         data-alias="${itemName}"
+                         data-description="${itemDesc}"
+                         data-category="${(category.name || '').toLowerCase()}">
+                        
+                        <div class="api-item-content" onclick="toggleEndpoint(${catIndex}, ${endpointIndex})">
+                            <div>
+                                <h5 class="font-medium text-gray-900" style="font-size: 1rem;">${itemName}</h5>
+                                <p class="mb-0 text-gray-600 text-muted font-medium" style="font-size: 0.80rem;">${itemDesc}</p>
+                            </div>
+                            <button class="btn-dark-custom">
+                                ${method}
+                            </button>
+                        </div>
+                        
+                        <div id="endpoint-${catIndex}-${endpointIndex}" class="endpoint-expand">
+                            <div class="bg-white px-6 mb-8 rounded-xl">
+                                <!-- Tab Navigation (Hanya Execute saja) -->
+                                
+                                <div>
+                                    <!-- Hanya menampilkan bagian input parameter (Execute) saja -->
+                                    <div id="method-content-${catIndex}-${endpointIndex}" class="tab-content active">
+                                        
+                                        <form id="${formId}">
+                                            <div class="mb-4 space-y-3" id="params-container-${catIndex}-${endpointIndex}"></div>
+                                            
+                                            <div class="mb-6">
+                                                <div class="flex gap-2">
+                                                    <div class="flex-1 code-block px-4 py-3">
+                                                        <span class="text-sm font-medium text-gray-900 truncate" id="url-display-${catIndex}-${endpointIndex}">${initialUrl}</span>
+                                                    </div>                      </div>
+                                            </div>
+                                            
+                                            <div class="flex gap-3">
+                                                <button type="button" onclick="executeRequest(${catIndex}, ${endpointIndex}, '${method}')" 
+                                                        class="flex-1 bg-gray-800 text-white font-medium py-3 px-5 text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-all rounded-lg">
+                                                    <i class="fas fa-play mr-2"></i> Execute Request
+                                                </button>
+                                                <button type="button" onclick="clearResponse(${catIndex}, ${endpointIndex})" 
+                                                        class="px-5 bg-gray-100 text-gray-800 font-medium py-3 text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-all rounded-lg">
+                                                    <i class="fas fa-redo"></i>
+                                                </button>
+                                            </div>
+                                        </form>
+                                        
+                                        <div id="response-${catIndex}-${endpointIndex}" class="mt-6 hidden">
+                                            <div class="flex justify-between items-center mb-3">
+                                                <div class="flex items-center gap-3">
+     <span class="content-type-badge" id="content-type-${catIndex}-${endpointIndex}"></span>
+                                                </div>
+                                                <div class="flex items-center gap-3">
+                                                    <span class="text-xs font-medium text-gray-600" id="response-time-${catIndex}-${endpointIndex}"></span>
+                                                    <button onclick="copyResponse(${catIndex}, ${endpointIndex})" class="text-gray-600 hover:text-gray-900 transition-colors"><i class="fas fa-copy"></i></button>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="bg-gray-50 border border-gray-200 overflow-hidden rounded-lg">
+                                                <div class="response-media-container p-4" id="response-content-${catIndex}-${endpointIndex}"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+            }
+            
+            html += `</div>`;
+        });
+        
+        apiList.innerHTML = html;
+        
+        // Initialize parameters for each endpoint
+        setTimeout(() => {
+            if (categories && categories.length > 0) {
+                categories.forEach((category, catIndex) => {
+                    if (category && category.items) {
+                        category.items.forEach((item, endpointIndex) => {
+                            if (item) { 
+                                initializeEndpointParameters(catIndex, endpointIndex, item);
+                            }
+                        });
+                    }
+                });
+            }
+        }, 100);
+        
+        console.log('API data rendered');
+    }
+
+    // Setup event listeners
+    function setupEventListeners() {
+        console.log('Setting up event listeners...');
+        
+        const searchInput = document.getElementById('searchInput');
+        const clearSearchBtn = document.getElementById('clearSearchBtn');
+        
+        if (searchInput) { 
+            searchInput.addEventListener('input', function() { 
+                handleSearch(this.value); 
+            }); 
+        }
+        
+        if (clearSearchBtn) { 
+            clearSearchBtn.addEventListener('click', function() { 
+                document.getElementById('searchInput').value = ''; 
+                handleSearch(''); 
+                showToast('Search cleared', 'info'); 
+            }); 
+        }
+        
+        // Hamburger menu toggle
+        const hamburgerToggle = document.getElementById('hamburger-toggle');
+        if (hamburgerToggle) {
+            hamburgerToggle.addEventListener('change', function() {
+                document.body.style.overflow = this.checked ? 'hidden' : 'auto';
+            });
+        }
+        
+        // Close mobile menu when clicking overlay
+        const mobileOverlay = document.querySelector('.mobile-menu-overlay');
+        if (mobileOverlay) {
+            mobileOverlay.addEventListener('click', function() {
+                document.getElementById('hamburger-toggle').checked = false;
+                document.body.style.overflow = 'auto';
+            });
+        }
+        
+        console.log('Event listeners setup completed');
+    }
+
+    function initializeEndpointParameters(catIndex, endpointIndex, item) {
+        const paramsContainer = document.getElementById(`params-container-${catIndex}-${endpointIndex}`);
+        if (!paramsContainer) return;
+        
+        const method = item.method || "GET";
+        const parameters = item.parameters || {};
+        
+        if (Object.keys(parameters).length === 0) {
+            paramsContainer.innerHTML = ``;
+            return;
+        }
+        
+        let paramsHtml = '';
+        
+        for (const [paramName, paramConfig] of Object.entries(parameters)) {
+            const required = paramConfig.required !== false;
+            const type = paramConfig.type || "string";
+            const example = paramConfig.example || "";
+            const value = paramConfig.value || "";
+            const selection = paramConfig.selection || [];
+            
+            let inputField = '';
+            
+            if (type === "select") {
+                let options = ``;
+                selection.forEach(option => {
+                    const selected = option === value ? 'selected' : '';
+                    options += `<option value="${option}" ${selected}>${option}</option>`;
+                });
+                
+                inputField = `
+                    <select name="${paramName}" 
+                            id="param-${catIndex}-${endpointIndex}-${paramName}"
+                            class="form-control-custom text-sm w-full"
+                            ${required ? 'required' : ''}>
+                        ${options}
+                    </select>
+                `;
+            } else if (type === "file" || type === "image" || type === "video" || type === "audio") {
+                let acceptValue = '*/*';
+                if (type === "image") acceptValue = "<div*";
+                else if (type === "audio") acceptValue = "audio/*";
+                else if (type === "video") acceptValue = "video/*";
+                else if (type === "file") acceptValue = "*/*";
+                
+                inputField = `
+                    <input type="file" 
+                           name="${paramName}" 
+                           id="param-${catIndex}-${endpointIndex}-${paramName}"
+                           class="form-control-custom w-full file:mr-4 file:py-2 file:px-4 file:border-0 file:text-xs text-xs font-medium file:font-medium file:bg-gray-100 file:text-gray-800 hover:file:bg-gray-200"
+                           ${required ? 'required' : ''}
+                           onchange="handleFileSelect(${catIndex}, ${endpointIndex}, '${paramName}', this)"
+                           accept="${acceptValue}">
+                    <div id="file-info-${catIndex}-${endpointIndex}-${paramName}" class="mt-1 text-xs text-gray-500 hidden"></div>
+                `;
+            } else {
+                const inputType = type === "number" ? "number" : "text";
+                const placeholder = example ? `Example: ${example}` : `Input ${paramName}...`;
+                
+                inputField = `
+                    <input type="${inputType}" 
+                           name="${paramName}" 
+                           id="param-${catIndex}-${endpointIndex}-${paramName}"
+                           class="form-control-custom text-sm w-full"
+                           placeholder="${placeholder}"
+                           value="${value}"
+                           ${required ? 'required' : ''}
+                           autocomplete="off">
+                `;
+            }
+            
+            paramsHtml += `
+                <div class="param-field" data-param-name="${paramName}">
+                    <label class="block text-gray-700 font-medium text-sm mb-1" for="param-${catIndex}-${endpointIndex}-${paramName}">
+                        ${paramName}
+                        ${required ? '<span class="text-red-600">*</span>' : '<span class="ml-1 text-gray-500 text-xs">(optional)</span>'}
+                    </label>
+                    ${inputField}
+                </div>
+            `;
+        }
+        
+        paramsContainer.innerHTML = paramsHtml;
+        
+        // Setup URL update for GET requests
+        if (method === 'GET') {
+            const inputs = paramsContainer.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', () => updateRequestUrl(catIndex, endpointIndex));
+                input.addEventListener('change', () => updateRequestUrl(catIndex, endpointIndex));
+            });
+            
+            const urlDisplay = document.getElementById(`url-display-${catIndex}-${endpointIndex}`);
+            if (urlDisplay) {
+                const currentUrl = urlDisplay.textContent.trim();
+                const baseUrl = currentUrl.split('?')[0];
+                urlDisplay.dataset.baseUrl = baseUrl;
+                
+                setTimeout(() => {
+                    updateRequestUrl(catIndex, endpointIndex);
+                }, 100);
+            }
+        }
+    }
+
+    function handleSearch(searchTerm) {
+        const searchTermLower = (searchTerm || '').toLowerCase().trim();
+        const noResults = document.getElementById('noResults');
+        
+        if (!searchTermLower) {
+            applyCategoryFilter(activeCategoryFilter);
+            if (noResults) noResults.classList.add('hidden');
+            updateSearchResultsCount();
+            return;
+        }
+        
+        let filteredData = [];
+        const activeCategory = originalCategories.find(cat => cat.name.toLowerCase() === activeCategoryFilter);
+        if (activeCategory) {
+            const filteredItems = activeCategory.items.filter(item => {
+                if (!item) return false;
+                return (
+                    (item.name || '').toLowerCase().includes(searchTermLower) || 
+                    (item.description || '').toLowerCase().includes(searchTermLower) || 
+                    (item.path || '').toLowerCase().includes(searchTermLower) || 
+                    (item.method || '').toLowerCase().includes(searchTermLower)
+                );
+            });
+            if (filteredItems.length > 0) { 
+                filteredData.push({ ...activeCategory, items: filteredItems }); 
+            }
+        }
+        
+        if (filteredData.length === 0) {
+            const apiList = document.getElementById('apiList');
+            if (apiList) apiList.innerHTML = '';
+            if (noResults) { 
+                noResults.classList.remove('hidden'); 
+            }
+        } else {
+            renderAPIData(filteredData);
+            if (noResults) noResults.classList.add('hidden');
+        }
+        updateSearchResultsCount(searchTermLower, filteredData);
+    }
+
+    function updateSearchResultsCount(searchTerm = '', filteredData = null) {
+        const searchResultsCount = document.getElementById('searchResultsCount');
+        const resultsCount = document.getElementById('resultsCount');
+        if (!searchResultsCount || !resultsCount) return;
+        if (!searchTerm) { 
+            searchResultsCount.classList.add('hidden'); 
+            return; 
+        }
+        let totalItems = 0;
+        if (filteredData) { 
+            filteredData.forEach(category => { 
+                totalItems += (category.items || []).length; 
+            }); 
+        }
+        resultsCount.textContent = totalItems;
+        searchResultsCount.classList.remove('hidden');
+    }
+
+    function toggleEndpoint(catIndex, endpointIndex) {
+        const endpoint = document.getElementById(`endpoint-${catIndex}-${endpointIndex}`);
+        if (endpoint) {
+            if (endpoint.classList.contains('open')) {
+                endpoint.classList.remove('open');
+            } else {
+                endpoint.classList.add('open');
+                // Scroll ke elemen dengan sedikit delay agar animasi terbuka terlihat
+                setTimeout(() => { 
+                    endpoint.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); 
+                }, 300);
+            }
+        }
+    }
+
+    function updateRequestUrl(catIndex, endpointIndex) {
+        const form = document.getElementById(`form-${catIndex}-${endpointIndex}`);
+        const urlDisplay = document.getElementById(`url-display-${catIndex}-${endpointIndex}`);
+        
+        if (!form || !urlDisplay) return { url: '', hasErrors: false };
+        
+        let baseUrl = urlDisplay.dataset.baseUrl;
+        if (!baseUrl) {
+            const currentUrl = urlDisplay.textContent.trim();
+            const questionMarkIndex = currentUrl.indexOf('?');
+            baseUrl = questionMarkIndex !== -1 ? currentUrl.substring(0, questionMarkIndex) : currentUrl;
+            urlDisplay.dataset.baseUrl = baseUrl;
+        }
+        
+        const params = new URLSearchParams();
+        const inputs = form.querySelectorAll('input[type="text"], input[type="number"], select');
+        
+        inputs.forEach(input => {
+            const name = input.name;
+            let value;
+            
+            if (input.tagName === 'SELECT') {
+                value = input.value;
+            } else {
+                value = input.value.trim();
+            }
+            
+            if (name && value) {
+                params.append(name, value);
+            }
+        });
+        
+        const queryString = params.toString();
+        const finalUrl = baseUrl + (queryString ? '?' + queryString : '');
+        urlDisplay.textContent = finalUrl;
+        
+        return { url: finalUrl, hasErrors: false };
+    }
+
+    async function executeRequest(catIndex, endpointIndex, method) {
+        const form = document.getElementById(`form-${catIndex}-${endpointIndex}`);
+        const item = originalCategories[catIndex]?.items[endpointIndex];
+        
+        if (!form || !item) {
+            console.error('Form or item not found');
+            return;
+        }
+        
+        // Validasi parameter required
+        const parameters = item.parameters || {};
+        let hasError = false;
+        
+        for (const [paramName, paramConfig] of Object.entries(parameters)) {
+            if (paramConfig.required) {
+                const input = form.querySelector(`[name="${paramName}"]`);
+                if (input) {
+                    const isFileType = paramConfig.type === 'file' || paramConfig.type === 'image' || 
+                                      paramConfig.type === 'video' || paramConfig.type === 'audio';
+                    
+                    if (isFileType) {
+                        if (!input.files || input.files.length === 0) {
+                            showToast(`${paramName} is required`, 'error');
+                            input.focus();
+                            hasError = true;
+                            break;
+                        }
+                    } else if (input.tagName === 'SELECT') {
+                        if (!input.value) {
+                            showToast(`${paramName} is required`, 'error');
+                            input.focus();
+                            hasError = true;
+                            break;
+                        }
+                    } else {
+                        if (!input.value.trim()) {
+                            showToast(`${paramName} is required`, 'error');
+                            input.focus();
+                            hasError = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (hasError) return;
+        
+        const responseDiv = document.getElementById(`response-${catIndex}-${endpointIndex}`);
+        const responseContent = document.getElementById(`response-content-${catIndex}-${endpointIndex}`);
+        const responseTime = document.getElementById(`response-time-${catIndex}-${endpointIndex}`);
+        const contentTypeBadge = document.getElementById(`content-type-${catIndex}-${endpointIndex}`);
+        
+        if (!responseDiv || !responseContent || !responseTime || !contentTypeBadge) {
+            showToast('Error: Response elements not found', 'error');
+            return;
+        }
+        
+        responseDiv.classList.remove('hidden');
+        responseDiv.style.display = 'block';
+        
+        responseContent.innerHTML = `
+            <div class="flex flex-col items-center justify-center py-12">
+                <div class="loader mb-6"></div>
+                <p class="text-gray-600 text-sm font-medium">Sending request to API...</p>
+            </div>
+        `;
+        
+        responseTime.textContent = '';
+        contentTypeBadge.textContent = '';
+        
+        const startTime = Date.now();
+        
+        try {
+            let requestOptions = {
+                method: method,
+                headers: { 
+                    'Accept': '*/*', 
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                }
+            };
+            
+            let requestUrl = '';
+            
+            if (method === 'POST' || method === 'PUT') {
+                const form = document.getElementById(`form-${catIndex}-${endpointIndex}`);
+                const formData = new FormData();
+                
+                const fileInputs = form.querySelectorAll('input[type="file"]');
+                let hasFiles = false;
+                
+                fileInputs.forEach(input => {
+                    if (input.files && input.files.length > 0) {
+                        hasFiles = true;
+                        formData.append(input.name, input.files[0]);
+                    }
+                });
+                
+                const textInputs = form.querySelectorAll('input[type="text"], input[type="number"]');
+                textInputs.forEach(input => {
+                    if (input.value.trim()) {
+                        formData.append(input.name, input.value.trim());
+                    }
+                });
+                
+                const selectInputs = form.querySelectorAll('select');
+                selectInputs.forEach(select => {
+                    if (select.value) {
+                        formData.append(select.name, select.value);
+                    }
+                });
+                
+                requestOptions.body = formData;
+                requestUrl = document.getElementById(`url-display-${catIndex}-${endpointIndex}`).textContent.trim().split('?')[0];
+                
+            } else {
+                const result = updateRequestUrl(catIndex, endpointIndex);
+                requestUrl = result.url;
+            }
+            
+            const response = await fetch(requestUrl, requestOptions);
+            const responseTimeMs = Date.now() - startTime;
+            responseTime.textContent = `${responseTimeMs}ms`;
+            
+            const contentType = response.headers.get('content-type') || '';
+            contentTypeBadge.textContent = contentType.split(';')[0] || 'unknown';
+            
+            if (!response.ok) {
+                let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+                try {
+                    const errorData = await response.text();
+                    if (errorData) {
+                        try { 
+                            const jsonError = JSON.parse(errorData); 
+                            errorMessage = jsonError.error || jsonError.message || errorMessage; 
+                        } catch { 
+                            if (errorData.length > 0) { 
+                                errorMessage += ` - ${errorData.substring(0, 100)}`; 
+                            } 
+                        }
+                    }
+                } catch (e) {}
+                throw new Error(errorMessage);
+            }
+            
+            if (contentType.includes('application/json')) {
+                const data = await response.json();
+                responseContent.innerHTML = `<div class="text-sm font-medium p-4 text-gray-700 overflow-auto max-h-96 whitespace-pre-wrap break-words bg-gray-50 rounded-lg">${JSON.stringify(data, null, 2)}</div>`;
+            } else if (contentType.includes('text/')) {
+                const text = await response.text();
+                if (text.trim().startsWith('{') || text.trim().startsWith('[')) {
+                    try { 
+                        const jsonData = JSON.parse(text); 
+                        responseContent.innerHTML = `<div class="text-sm font-medium p-4 text-gray-700 overflow-auto max-h-96 bg-gray-50 rounded-lg">${JSON.stringify(jsonData, null, 2)}</div>`; 
+                    } catch { 
+                        responseContent.innerHTML = `<div class="text-sm font-medium p-4 text-gray-700 overflow-auto max-h-96 whitespace-pre-wrap break-words bg-gray-50 rounded-lg">${text}</div>`; 
+                    }
+                } else { 
+                    responseContent.innerHTML = `<div class="text-sm font-medium p-4 text-gray-700 overflow-auto max-h-96 whitespace-pre-wrap break-words bg-gray-50 rounded-lg">${text}</div>`; 
+                }
+            } else if (contentType.includes('image/')) {
+                const blob = await response.blob();
+                const imageUrl = URL.createObjectURL(blob);
+                responseContent.innerHTML = `
+                    <div class="p-0 flex flex-col items-center justify-center">
+                        <img src="${imageUrl}" alt="Image Response" class="max-w-full max-h-96 object-contain shadow-lg rounded-lg" />
+                    </div>
+                `;
+            } else {
+                try {
+                    const text = await response.text();
+                    responseContent.innerHTML = `<div class="text-sm font-medium p-4 text-gray-700 overflow-auto max-h-96 whitespace-pre-wrap break-words bg-gray-50 rounded-lg">${text}</div>`;
+                    contentTypeBadge.textContent = 'text/plain (auto-detected)';
+                } catch (error) { 
+                    throw new Error(`Unsupported content type: ${contentType}`); 
+                }
+            }
+            showToast('API request successful!', 'success');
+        } catch (error) {
+            console.error('API Request Error:', error);
+            const errorMessage = error.message || 'Unknown error occurred';
+            responseContent.innerHTML = `
+                <div class="text-center py-10 px-4">
+                    <div class="w-16 h-16 bg-red-100 flex items-center justify-center mx-auto mb-4 rounded-full">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+                    </div>
+                    <h4 class="font-medium text-gray-900 mb-2">API Request Failed</h4>
+                    <p class="text-gray-600 text-sm">${escapeHtml(errorMessage)}</p>
+                </div>
+            `;
+            responseTime.textContent = 'Error';
+            contentTypeBadge.textContent = 'error';
+            showToast(`API request failed: ${errorMessage.substring(0, 50)}...`, 'error');
+        }
+    }
+
+    function formatBytes(bytes, decimals = 2) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+
+    function clearResponse(catIndex, endpointIndex) {
+        const form = document.getElementById(`form-${catIndex}-${endpointIndex}`);
+        const responseDiv = document.getElementById(`response-${catIndex}-${endpointIndex}`);
+        
+        if (!form || !responseDiv) return;
+        
+        const inputs = form.querySelectorAll('input[type="text"], input[type="number"], select');
+        inputs.forEach(input => {
+            if (input.tagName === 'SELECT') {
+                input.selectedIndex = 0;
+            } else {
+                input.value = '';
+            }
+        });
+        
+        const fileInputs = form.querySelectorAll('input[type="file"]');
+        fileInputs.forEach(input => {
+            input.value = '';
+            const paramName = input.name;
+            const fileInfoDiv = document.getElementById(`file-info-${catIndex}-${endpointIndex}-${paramName}`);
+            if (fileInfoDiv) { 
+                fileInfoDiv.classList.add('hidden'); 
+                fileInfoDiv.innerHTML = ''; 
+            }
+        });
+        
+        responseDiv.classList.add('hidden');
+        responseDiv.style.display = "none"
+        
+        const method = originalCategories[catIndex]?.items[endpointIndex]?.method;
+        if (method === 'GET') { 
+            updateRequestUrl(catIndex, endpointIndex); 
+        }
+        
+        showToast('Form cleared', 'info');
+    }
+
+    function copyUrl(catIndex, endpointIndex) {
+        const urlDisplay = document.getElementById(`url-display-${catIndex}-${endpointIndex}`);
+        if (!urlDisplay) return;
+        const url = urlDisplay.textContent.trim();
+        navigator.clipboard.writeText(url).then(() => { 
+            showToast('URL copied to clipboard!', 'success'); 
+        }).catch(err => { 
+            showToast('Failed to copy URL', 'error'); 
+        });
+    }
+
+    function copyResponse(catIndex, endpointIndex) {
+        const responseContent = document.getElementById(`response-content-${catIndex}-${endpointIndex}`);
+        if (!responseContent) return;
+        const text = responseContent.textContent || responseContent.innerText;
+        navigator.clipboard.writeText(text).then(() => { 
+            showToast('Response copied to clipboard!', 'success'); 
+        }).catch(err => { 
+            showToast('Failed to copy response', 'error'); 
+        });
+    }
+
+    function showToast(message, type = 'info') {
+        const toastContainer = document.getElementById('toastContainer');
+        if (!toastContainer) return;
+        const toastId = 'toast-' + Date.now();
+        const icon = { 
+            'success': 'fas fa-check-circle', 
+            'error': 'fas fa-exclamation-circle', 
+            'info': 'fas fa-info-circle', 
+            'warning': 'fas fa-exclamation-triangle' 
+        }[type] || 'fas fa-info-circle';
+        const colorClass = { 
+            'success': 'text-green-600', 
+            'error': 'text-red-600', 
+            'info': 'text-blue-600', 
+            'warning': 'text-yellow-600' 
+        }[type] || 'text-blue-600';
+        const toast = document.createElement('div');
+        toast.id = toastId;
+        toast.className = 'toast';
+        toast.innerHTML = `
+            <div class="flex items-center gap-3">
+                <i class="${icon} ${colorClass} text-lg"></i>
+                <div>
+                    <p class="text-gray-900 font-medium">${message}</p>
+                </div>
+            </div>
+        `;
+        toastContainer.appendChild(toast);
+        setTimeout(() => { toast.classList.add('show'); }, 10);
+        setTimeout(() => { 
+            toast.classList.remove('show'); 
+            setTimeout(() => { 
+                if (toast.parentNode) { 
+                    toast.parentNode.removeChild(toast); 
+                } 
+            }, 500); 
+        }, 4000);
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function handleFileSelect(catIndex, endpointIndex, paramName, fileInput) {
+        const fileInfoDiv = document.getElementById(`file-info-${catIndex}-${endpointIndex}-${paramName}`);
+        if (!fileInput.files.length) return;
+        const file = fileInput.files[0];
+        const fileSize = formatFileSize(file.size);
+        fileInfoDiv.innerHTML = `
+            <div class="flex items-center gap-1 text-green-600 font-medium">
+                <i class="fas fa-check-circle"></i>
+                <span class="font-medium">${file.name} (${fileSize})</span>
+            </div>
+        `;
+        fileInfoDiv.classList.remove('hidden');
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // Export functions ke window object
+    window.toggleEndpoint = toggleEndpoint;
+    window.executeRequest = executeRequest;
+    window.clearResponse = clearResponse;
+    window.copyUrl = copyUrl;
+    window.copyResponse = copyResponse;
+    window.updateRequestUrl = updateRequestUrl;
+    window.handleFileSelect = handleFileSelect;
+    window.formatFileSize = formatFileSize;
+</script>
+</body>
+</html>
