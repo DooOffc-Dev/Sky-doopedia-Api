@@ -36,12 +36,13 @@ global.fetchJson = async (url, options = {}) => {
 };
 
 const settings = {
-  name: "X-Mods Api",
-  description: "X-Mods Api is a simple and lightweight REST API built with Next.js, designed to provide easy access to various web functionalities.",
+  name: "XSkydoo-Mods Api",
+  description: "XSkydoo-Mods Api is a simple and lightweight REST API built with Next.js, designed to provide easy access to various web functionalities.",
   apiSettings: { creator: "Xsky_doopedia" },
   linkWhatsapp: "https://t.me/Xsky_doopedia",
   linkChannel: "https://whatsapp.com/channel/0029VbDThaa7tkj1ZTGzfw3X", 
-  linkGithub: "https://www.youtube.com/@sky_doo"
+  linkGithub: "https://github.com/Xsky_DooCodex"
+  linkYoutube: "https://www.youtube.com/@sky_doo"
 };
 
 global.apikey = ["123", "1"]
