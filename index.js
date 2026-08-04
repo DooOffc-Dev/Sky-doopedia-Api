@@ -41,8 +41,8 @@ const settings = {
   apiSettings: { creator: "Xsky_doopedia" },
   linkWhatsapp: "https://t.me/Xsky_doopedia",
   linkChannel: "https://whatsapp.com/channel/0029VbDThaa7tkj1ZTGzfw3X", 
-  linkGithub: "https://github.com/Xsky_DooCodex"
-  linkYoutube: "https://www.youtube.com/@sky_doo"
+  linkGithub: "https://github.com/Xsky_DooCodex", 
+  linkyoutube: "https://www.youtube.com/@sky_doo",
 };
 
 global.apikey = ["123", "1"]
